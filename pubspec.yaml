@@ -13,9 +13,11 @@ dependencies:
   vm_service: ^14.3.1  # Keep vm_service version 14.3.1
   flutter:
     sdk: flutter
-  sqflite: ^2.3.0
+  sqflite: ^2.0.0+3
   path_provider: ^2.1.2
-  sqflite_common_ffi: ^2.3.0  # Add this for desktop database support
+  logging: ^1.0.2
+  sqflite_common_ffi_web: ^1.0.0  
+  sqflite_common_ffi:  ^2.3.4
   path: ^1.8.3
   flutter_svg: ^2.0.17
   cupertino_icons: ^1.0.2

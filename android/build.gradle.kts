@@ -1,29 +1,29 @@
 plugins {
-    id("com.android.application") version "7.0.0" apply false
-    id("org.jetbrains.kotlin.android") version "1.8.0" apply false // Updated Kotlin version
+    id 'com.android.library'
+    id 'kotlin-android'
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
+android {
+    compileSdkVersion 33
+
+    // Add the namespace here (use the plugin's package or app-specific one)
+    namespace = "com.dexterous.flutterlocalnotifications"  // Add namespace for the plugin module
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 33
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
     }
 }
 
-// Define the new build directory
-val newBuildDir: Directory = rootProject.layout.buildDirectory.dir("../../build").get()
-rootProject.layout.buildDirectory.set(newBuildDir)
-
-subprojects {
-    // Define new subproject build directory
-    val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
-    project.layout.buildDirectory.set(newSubprojectBuildDir)
-
-    // Ensure the 'app' module is evaluated first
-    project.evaluationDependsOn(":app")
-}
-
-// Task to clean the build directories
-tasks.register<Delete>("clean") {
-    delete(rootProject.layout.buildDirectory)
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.22"
 }

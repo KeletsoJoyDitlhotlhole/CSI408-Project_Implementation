@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'viewprescriptions_screen.dart';
 import 'logintake_screen.dart';
 import 'refilldates_screen.dart';
+import 'login_screen.dart';
 
 // Mock method to get logged-in user's patientID (replace this with your actual logic)
 String getLoggedInPatientID() {
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Medication Compliance Tool', // Set a default app title
+      title: 'Medication Compliance Tool',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -28,140 +29,230 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class Dashboard extends StatelessWidget {
+class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
 
   @override
+  DashboardState createState() => DashboardState(); // Use public state class here
+}
+
+class DashboardState extends State<Dashboard> {
+  // Make this class public by removing underscore
+  // Track hovered card index for desktop
+  int _hoveredIndex = -1;
+
+  String patientID = getLoggedInPatientID();
+
+  @override
   Widget build(BuildContext context) {
-    // Get the logged-in user's patientID dynamically
-    String patientID = getLoggedInPatientID();
+    // Get screen width and height for responsiveness
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    // Adjust the logo size based on screen width
+    double logoSize = screenWidth > 600 ? 70.0 : 60.0; // Increase logo size
 
     return Scaffold(
-      backgroundColor: Colors.white, // Set the background color to white
       appBar: AppBar(
-        // Use the logo image in the AppBar instead of a title
+        automaticallyImplyLeading: false, // Disable the back button
         title: Image.asset(
           'assets/images/logo_with_name_white.png', // Your logo path
-          height: 40, // Adjust the logo height as needed
+          height: logoSize, // Adjust logo size for responsiveness
         ),
-        centerTitle: true, // This will center the logo in the AppBar
-        backgroundColor:
-            Colors.white, // Optional: Set a background color for the AppBar
-        elevation: 0, // Optional: Remove the elevation (shadow)
+        centerTitle: true,
+        backgroundColor: Colors.transparent, // Transparent background
+        elevation: 0, // No shadow
+        actions: [
+          // Logout button
+          IconButton(
+            icon: Icon(Icons.exit_to_app, color: Colors.black),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
+            },
+          ),
+        ],
       ),
+      backgroundColor: Colors.white, // Set the background color to white
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.05,
+          vertical: screenHeight * 0.05,
+        ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Dashboard Title (Centered and light color)
             Text(
-              'Welcome, $patientID!', // Display the patientID
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              'Dashboard',
+              style: TextStyle(
+                fontSize:
+                    screenWidth > 600
+                        ? 28
+                        : 24, // Adjust title font size based on screen size
+                fontWeight: FontWeight.w500,
+                color: Colors.black54, // Light text color
+              ),
             ),
-            SizedBox(height: 70),
+            SizedBox(
+              height: screenHeight * 0.05,
+            ), // Space between title and the cards
 
+            Spacer(), // Push content to the bottom
             // View Prescriptions Card
-            Card(
-              elevation: 8, // Add shadow for elevation
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30), // Round the corners
-              ),
-              color: Color.fromRGBO(
-                195,
-                223,
-                224,
-                1,
-              ), // Set card background color
-              child: Container(
-                height: 120, // Increase the card's height
-                padding: EdgeInsets.all(30), // More padding inside the card
-                child: ListTile(
-                  title: Text(
-                    'View Prescriptions',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center, // Adjust text size
+            _buildDashboardCard(
+              context,
+              'View Prescriptions',
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) =>
+                            ViewPrescriptionsScreen(patientID: patientID),
                   ),
-                  onTap: () {
-                    // Navigate to ViewPrescriptionsScreen
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) =>
-                                ViewPrescriptionsScreen(patientID: patientID),
-                      ),
-                    );
-                  },
-                ),
-              ),
+                );
+              },
+              0, // Hover effect on first card
+              screenWidth, // Pass screen width for responsiveness
             ),
-            SizedBox(height: 16), // Add space between cards
+
+            SizedBox(height: screenHeight * 0.02), // Space between cards
             // Log Medication Intake Card
-            Card(
-              elevation: 8, // Add shadow for elevation
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30), // Round the corners
-              ),
-              color: Color.fromRGBO(
-                195,
-                223,
-                224,
-                1,
-              ), // Set card background color
-              child: Container(
-                height: 120, // Increase the card's height
-                padding: EdgeInsets.all(24), // More padding inside the card
-                child: ListTile(
-                  title: Text(
-                    'Log Medication Intake',
-                    style: TextStyle(fontSize: 18), // Adjust text size
+            _buildDashboardCard(
+              context,
+              'Log Medication Intake',
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LogIntakeScreen(patientID: patientID),
                   ),
-                  onTap: () {
-                    // Pass the dynamic patientID to LogIntakeScreen
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => LogIntakeScreen(patientID: patientID),
-                      ),
-                    );
-                  },
-                ),
-              ),
+                );
+              },
+              1, // Hover effect on second card
+              screenWidth, // Pass screen width for responsiveness
             ),
-            SizedBox(height: 16), // Add space between cards
+
+            SizedBox(height: screenHeight * 0.02), // Space between cards
             // View Refill Dates Card
-            Card(
-              elevation: 8, // Add shadow for elevation
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30), // Round the corners
-              ),
-              color: Color.fromRGBO(
-                195,
-                223,
-                224,
-                1,
-              ), // Set card background color
-              child: Container(
-                height: 120, // Increase the card's height
-                padding: EdgeInsets.all(24), // More padding inside the card
-                child: ListTile(
-                  title: Text(
-                    'View Refill Dates',
-                    style: TextStyle(fontSize: 18), // Adjust text size
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => RefillScreen()),
-                    );
-                  },
-                ),
-              ),
+            _buildDashboardCard(
+              context,
+              'View Refill Dates',
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RefillScreen()),
+                );
+              },
+              2, // Hover effect on third card
+              screenWidth, // Pass screen width for responsiveness
             ),
+            Spacer(),
           ],
         ),
       ),
     );
+  }
+
+  // Helper function to create a card with title and action
+  Widget _buildDashboardCard(
+    BuildContext context,
+    String title,
+    VoidCallback onTap,
+    int index, // Index of the card
+    double screenWidth, // Pass screenWidth for responsiveness
+  ) {
+    bool isHovered = _hoveredIndex == index;
+    // For mobile devices, no hover effect will work, only onTap.
+    if (screenWidth <= 600) {
+      return GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12), // Slightly rounded corners
+            color: Color(0xFFADD8E6), // Light blue color for the card
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey, // Subtle shadow color
+                blurRadius: 8, // Softer blur
+                spreadRadius: 2, // Slight spread
+                offset: Offset(0, 4), // Slight offset for depth
+              ),
+            ],
+          ),
+          padding: EdgeInsets.all(12), // Thinner cards with less padding
+          height: 100, // Slightly smaller card height
+          child: Center(
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 16, // Smaller font size for modern look
+                fontWeight: FontWeight.w600,
+                color: Colors.black, // Black text by default
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    } else {
+      return GestureDetector(
+        onTap: onTap,
+        child: MouseRegion(
+          onEnter: (_) {
+            setState(() {
+              _hoveredIndex = index;
+            });
+          },
+          onExit: (_) {
+            setState(() {
+              _hoveredIndex = -1;
+            });
+          },
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(
+                12,
+              ), // Slightly rounded corners
+              color:
+                  isHovered
+                      ? Color(0xFF9E4A47) // Light maroon when hovered
+                      : Color(0xFFADD8E6), // Light blue color for the card
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey, // Subtle shadow color
+                  blurRadius: 8, // Softer blur
+                  spreadRadius: 2, // Slight spread
+                  offset: Offset(0, 4), // Slight offset for depth
+                ),
+              ],
+            ),
+            padding: EdgeInsets.all(12), // Thinner cards with less padding
+            height: 100, // Slightly smaller card height
+            child: Center(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16, // Smaller font size for modern look
+                  fontWeight: FontWeight.w600,
+                  color:
+                      isHovered
+                          ? Colors.white
+                          : Colors.black, // White text on hover
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
   }
 }
