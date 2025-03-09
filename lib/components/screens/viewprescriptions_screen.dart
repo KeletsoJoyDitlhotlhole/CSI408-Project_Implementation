@@ -23,7 +23,6 @@ class ViewPrescriptionsScreenState extends State<ViewPrescriptionsScreen> {
         fetchPrescriptions(); // Fetch prescriptions when the screen is initialized
   }
 
-  // Fetch prescriptions from the database
   Future<List<ViewPrescriptions>> fetchPrescriptions() async {
     var prescs = await DatabaseHelper.instance.getPrescriptions(
       widget.patientID,
