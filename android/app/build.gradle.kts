@@ -8,7 +8,9 @@ plugins {
 android {
     namespace = "com.example.medication_compliance_tool"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+
+    // Explicitly set the NDK version required for the project
+    ndkVersion = "27.0.12077973"  // Update NDK version to the required one
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

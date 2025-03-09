@@ -30,7 +30,8 @@ dependencies:
   sqflite_common_ffi_web: ^1.0.0  # Correct package for web
 
   # Notifications (EXCLUDE for Web)
-  flutter_local_notifications: ^9.1.4  # Use latest published version instead of Git
+  flutter_local_notifications: ^9.1.4
+  # No platforms section here, unless excluding Linux or specific platforms
 
 dev_dependencies:
   flutter_test:
