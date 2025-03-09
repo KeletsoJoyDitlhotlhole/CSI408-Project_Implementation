@@ -1,56 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:medication_compliance_tool/components/screens/login_screen.dart'; // Ensure this is the correct path to your login page
 
-class LandingPageWidget extends StatelessWidget {
+class LandingPageWidget extends StatefulWidget {
   const LandingPageWidget({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final isSmallScreen = screenSize.width < 640;
+  LandingPageWidgetState createState() => LandingPageWidgetState();
+}
 
+class LandingPageWidgetState extends State<LandingPageWidget> {
+  @override
+  void initState() {
+    super.initState();
+    // Start the delay for navigation after 6 seconds
+    Future.delayed(Duration(seconds: 6), () {
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blueAccent,
-      body: Container(
-        width: isSmallScreen ? screenSize.width : 360,
-        height: isSmallScreen ? screenSize.height : 800,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blueAccent, Colors.deepPurpleAccent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(25),
-        ),
-        child: Stack(
-          children: [
-            // Logo Image with cool effects
-            Positioned(
-              top: 180,
-              left: isSmallScreen ? screenSize.width * 0.1 : 15,
-              child: AnimatedOpacity(
-                opacity: 1.0,
-                duration: const Duration(seconds: 2),
-                child: Container(
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black,
-                        blurRadius: 15,
-                        offset: Offset(0, 5),
-                      ),
-                    ],
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: Image.asset(
-                    'assets/images/logo_with_name_blue.png',
-                    width: isSmallScreen ? screenSize.width * 0.8 : 320,
-                    height: isSmallScreen ? null : 250,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-            ),
-          ],
+      backgroundColor: Color(0xFFC3DFE0), // Set background color
+      body: Center(
+        child: Image.asset(
+          'assets/images/logo_with_name_white.png',
+          width: MediaQuery.of(context).size.width * 0.6,
+          fit: BoxFit.contain,
         ),
       ),
     );

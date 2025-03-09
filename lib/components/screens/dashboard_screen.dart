@@ -37,7 +37,6 @@ class Dashboard extends StatefulWidget {
 }
 
 class DashboardState extends State<Dashboard> {
-  // Make this class public by removing underscore
   // Track hovered card index for desktop
   int _hoveredIndex = -1;
 
@@ -49,23 +48,15 @@ class DashboardState extends State<Dashboard> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    // Adjust the logo size based on screen width
-    double logoSize = screenWidth > 600 ? 70.0 : 60.0; // Increase logo size
-
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false, // Disable the back button
-        title: Image.asset(
-          'assets/images/logo_with_name_white.png', // Your logo path
-          height: logoSize, // Adjust logo size for responsiveness
-        ),
-        centerTitle: true,
         backgroundColor: Colors.transparent, // Transparent background
         elevation: 0, // No shadow
         actions: [
-          // Logout button
+          // Logout button with three dots (more_vert)
           IconButton(
-            icon: Icon(Icons.exit_to_app, color: Colors.black),
+            icon: Icon(Icons.more_vert, color: Colors.black),
             onPressed: () {
               Navigator.pushReplacement(
                 context,
@@ -76,82 +67,99 @@ class DashboardState extends State<Dashboard> {
         ],
       ),
       backgroundColor: Colors.white, // Set the background color to white
-      body: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: screenWidth * 0.05,
-          vertical: screenHeight * 0.05,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Dashboard Title (Centered and light color)
-            Text(
-              'Dashboard',
-              style: TextStyle(
-                fontSize:
-                    screenWidth > 600
-                        ? 28
-                        : 24, // Adjust title font size based on screen size
-                fontWeight: FontWeight.w500,
-                color: Colors.black54, // Light text color
+      body: Center(
+        // Center the body content vertically and horizontally
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.05,
+            vertical: screenHeight * 0.05,
+          ),
+          child: Column(
+            mainAxisAlignment:
+                MainAxisAlignment.center, // Center the content vertically
+            crossAxisAlignment:
+                CrossAxisAlignment.center, // Center the content horizontally
+            children: [
+              // Dashboard Logo and Title Bar
+              Column(
+                children: [
+                  FittedBox(
+                    fit: BoxFit.contain,
+                    child: Image.asset(
+                      'assets/images/logo_with_name_white.png', // Path to your logo
+                      height:
+                          200, // Set the height to 4 times larger (200 instead of 50)
+                    ),
+                  ),
+                  SizedBox(height: 20), // Space between logo and title
+                  Text(
+                    'Dashboard',
+                    style: TextStyle(
+                      fontSize:
+                          screenWidth > 600
+                              ? 28
+                              : 24, // Adjust title font size based on screen size
+                      fontWeight: FontWeight.bold, // Make the title bold
+                      color: Colors.black, // Light text color
+                    ),
+                  ),
+                ],
               ),
-            ),
-            SizedBox(
-              height: screenHeight * 0.05,
-            ), // Space between title and the cards
+              SizedBox(
+                height: screenHeight * 0.05,
+              ), // Space between title and the cards
+              // View Prescriptions Card
+              _buildDashboardCard(
+                context,
+                'View Prescriptions',
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) =>
+                              ViewPrescriptionsScreen(patientID: patientID),
+                    ),
+                  );
+                },
+                0, // Hover effect on first card
+                screenWidth, // Pass screen width for responsiveness
+              ),
 
-            Spacer(), // Push content to the bottom
-            // View Prescriptions Card
-            _buildDashboardCard(
-              context,
-              'View Prescriptions',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) =>
-                            ViewPrescriptionsScreen(patientID: patientID),
-                  ),
-                );
-              },
-              0, // Hover effect on first card
-              screenWidth, // Pass screen width for responsiveness
-            ),
+              SizedBox(height: screenHeight * 0.02), // Space between cards
+              // Log Medication Intake Card
+              _buildDashboardCard(
+                context,
+                'Log Medication Intake',
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => LogIntakeScreen(patientID: patientID),
+                    ),
+                  );
+                },
+                1, // Hover effect on second card
+                screenWidth, // Pass screen width for responsiveness
+              ),
 
-            SizedBox(height: screenHeight * 0.02), // Space between cards
-            // Log Medication Intake Card
-            _buildDashboardCard(
-              context,
-              'Log Medication Intake',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LogIntakeScreen(patientID: patientID),
-                  ),
-                );
-              },
-              1, // Hover effect on second card
-              screenWidth, // Pass screen width for responsiveness
-            ),
-
-            SizedBox(height: screenHeight * 0.02), // Space between cards
-            // View Refill Dates Card
-            _buildDashboardCard(
-              context,
-              'View Refill Dates',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RefillScreen()),
-                );
-              },
-              2, // Hover effect on third card
-              screenWidth, // Pass screen width for responsiveness
-            ),
-            Spacer(),
-          ],
+              SizedBox(height: screenHeight * 0.02), // Space between cards
+              // View Refill Dates Card
+              _buildDashboardCard(
+                context,
+                'View Refill Dates',
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RefillScreen()),
+                  );
+                },
+                2, // Hover effect on third card
+                screenWidth, // Pass screen width for responsiveness
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -192,10 +200,10 @@ class DashboardState extends State<Dashboard> {
               title,
               style: TextStyle(
                 fontSize: 16, // Smaller font size for modern look
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.normal, // Unbold the card title
                 color: Colors.black, // Black text by default
               ),
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.center, // Center the text
             ),
           ),
         ),
@@ -241,13 +249,13 @@ class DashboardState extends State<Dashboard> {
                 title,
                 style: TextStyle(
                   fontSize: 16, // Smaller font size for modern look
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.normal, // Unbold the card title
                   color:
                       isHovered
                           ? Colors.white
                           : Colors.black, // White text on hover
                 ),
-                textAlign: TextAlign.center,
+                textAlign: TextAlign.center, // Center the text
               ),
             ),
           ),
