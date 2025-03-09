@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'viewprescriptions_screen.dart';
 import 'logintake_screen.dart';
-import 'refilldates_screen.dart';
+import 'refilldates_screen.dart'; // Make sure to import the correct screen
 import 'login_screen.dart';
 
-// Mock method to get logged-in user's patientID (replace this with your actual logic)
 String getLoggedInPatientID() {
   return 'Pat001'; // Example patientID for the logged-in user
 }
@@ -33,7 +32,7 @@ class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
 
   @override
-  DashboardState createState() => DashboardState(); // Use public state class here
+  DashboardState createState() => DashboardState();
 }
 
 class DashboardState extends State<Dashboard> {
@@ -152,7 +151,12 @@ class DashboardState extends State<Dashboard> {
                 () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => RefillScreen()),
+                    MaterialPageRoute(
+                      builder:
+                          (context) => RefillDatesScreen(
+                            patientID: patientID,
+                          ), // Corrected navigation
+                    ),
                   );
                 },
                 2, // Hover effect on third card
