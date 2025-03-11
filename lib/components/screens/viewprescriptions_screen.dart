@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:medication_compliance_tool/database/database_helper.dart';
 import 'package:medication_compliance_tool/components/models/viewprescriptions.dart'; // Import ViewPrescriptions model
-import 'dashboard_screen.dart'; // Import the Dashboard screen for navigation
+import 'dashboard_screen.dart';
 
 class ViewPrescriptionsScreen extends StatefulWidget {
   final String patientID; // Pass the patient ID to fetch their prescriptions
@@ -51,19 +51,19 @@ class ViewPrescriptionsScreenState extends State<ViewPrescriptionsScreen> {
                 height: screenHeight * 0.1, // Space at the top
               ),
 
-              // Container for Prescriptions Fields with white background
+              // Container for Prescriptions Fields
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white, // White background behind fields
-                    borderRadius: BorderRadius.circular(15), // Rounded corners
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey, // Light shadow for a clean look
+                        color: Colors.grey,
                         spreadRadius: 3,
                         blurRadius: 7,
-                        offset: Offset(0, 3), // Changes position of shadow
+                        offset: Offset(0, 3),
                       ),
                     ],
                   ),
@@ -129,7 +129,7 @@ class ViewPrescriptionsScreenState extends State<ViewPrescriptionsScreen> {
                                 padding: EdgeInsets.symmetric(
                                   vertical: 10.0,
                                   horizontal: 15.0,
-                                ), // Add padding for better layout
+                                ), // Adding padding for better layout
                                 itemCount: prescs.length,
                                 shrinkWrap:
                                     true, // Make the ListView fit inside the scrollable area
