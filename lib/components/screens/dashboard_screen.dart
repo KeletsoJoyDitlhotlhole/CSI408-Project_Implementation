@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'viewprescriptions_screen.dart';
 import 'logintake_screen.dart';
-import 'refilldates_screen.dart'; // Make sure to import the correct screen
+import 'refilldates_screen.dart';
 import 'login_screen.dart';
+import 'viewmedicationhistory_screen.dart';
 
 String getLoggedInPatientID() {
   return 'Pat001'; // Example patientID for the logged-in user
@@ -53,9 +54,20 @@ class DashboardState extends State<Dashboard> {
         backgroundColor: Colors.transparent, // Transparent background
         elevation: 0, // No shadow
         actions: [
-          // Logout button with three dots (more_vert)
+          // Notification Icon
           IconButton(
-            icon: Icon(Icons.more_vert, color: Colors.black),
+            icon: Icon(Icons.notifications, color: Colors.black),
+            onPressed: () {
+              // Placeholder action for notifications
+              // You can replace this with your actual notification screen or action
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('No new notifications')));
+            },
+          ),
+          // Logout Icon (proper logout icon)
+          IconButton(
+            icon: Icon(Icons.logout, color: Colors.black),
             onPressed: () {
               Navigator.pushReplacement(
                 context,
@@ -66,103 +78,122 @@ class DashboardState extends State<Dashboard> {
         ],
       ),
       backgroundColor: Colors.white, // Set the background color to white
-      body: Center(
-        // Center the body content vertically and horizontally
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: screenWidth * 0.05,
-            vertical: screenHeight * 0.05,
-          ),
-          child: Column(
-            mainAxisAlignment:
-                MainAxisAlignment.center, // Center the content vertically
-            crossAxisAlignment:
-                CrossAxisAlignment.center, // Center the content horizontally
-            children: [
-              // Dashboard Logo and Title Bar
-              Column(
-                children: [
-                  FittedBox(
-                    fit: BoxFit.contain,
-                    child: Image.asset(
-                      'assets/images/logo_with_name_white.png', // Path to your logo
-                      height:
-                          200, // Set the height to 4 times larger (200 instead of 50)
+      body: SingleChildScrollView(
+        // Wrap the body in a SingleChildScrollView to avoid overflow
+        child: Center(
+          // Center the body content vertically and horizontally
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: screenWidth * 0.05,
+              vertical: screenHeight * 0.05,
+            ),
+            child: Column(
+              mainAxisAlignment:
+                  MainAxisAlignment.center, // Center the content vertically
+              crossAxisAlignment:
+                  CrossAxisAlignment.center, // Center the content horizontally
+              children: [
+                // Dashboard Logo and Title Bar
+                Column(
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.contain,
+                      child: Image.asset(
+                        'assets/images/logo_with_name_white.png', // Path to your logo
+                        height:
+                            200, // Set the height to 4 times larger (200 instead of 50)
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 20), // Space between logo and title
-                  Text(
-                    'Dashboard',
-                    style: TextStyle(
-                      fontSize:
-                          screenWidth > 600
-                              ? 28
-                              : 24, // Adjust title font size based on screen size
-                      fontWeight: FontWeight.bold, // Make the title bold
-                      color: Colors.black, // Light text color
+                    SizedBox(height: 20), // Space between logo and title
+                    Text(
+                      'Dashboard',
+                      style: TextStyle(
+                        fontSize:
+                            screenWidth > 600
+                                ? 28
+                                : 24, // Adjust title font size based on screen size
+                        fontWeight: FontWeight.bold, // Make the title bold
+                        color: Colors.black, // Light text color
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: screenHeight * 0.05,
-              ), // Space between title and the cards
-              // View Prescriptions Card
-              _buildDashboardCard(
-                context,
-                'View Prescriptions',
-                () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) =>
-                              ViewPrescriptionsScreen(patientID: patientID),
-                    ),
-                  );
-                },
-                0, // Hover effect on first card
-                screenWidth, // Pass screen width for responsiveness
-              ),
-
-              SizedBox(height: screenHeight * 0.02), // Space between cards
-              // Log Medication Intake Card
-              _buildDashboardCard(
-                context,
-                'Log Medication Intake',
-                () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => LogIntakeScreen(patientID: patientID),
-                    ),
-                  );
-                },
-                1, // Hover effect on second card
-                screenWidth, // Pass screen width for responsiveness
-              ),
-
-              SizedBox(height: screenHeight * 0.02), // Space between cards
-              // View Refill Dates Card
-              _buildDashboardCard(
-                context,
-                'View Refill Dates',
-                () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => RefillDatesScreen(
-                            patientID: patientID,
-                          ), // Corrected navigation
-                    ),
-                  );
-                },
-                2, // Hover effect on third card
-                screenWidth, // Pass screen width for responsiveness
-              ),
-            ],
+                  ],
+                ),
+                SizedBox(
+                  height: screenHeight * 0.05,
+                ), // Space between title and the cards
+                // View Prescriptions Card
+                _buildDashboardCard(
+                  context,
+                  'View Prescriptions',
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) =>
+                                ViewPrescriptionsScreen(patientID: patientID),
+                      ),
+                    );
+                  },
+                  0, // Hover effect on first card
+                  screenWidth, // Pass screen width for responsiveness
+                ),
+                SizedBox(height: screenHeight * 0.02), // Space between cards
+                // Log Medication Intake Card
+                _buildDashboardCard(
+                  context,
+                  'Log Medication Intake',
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => LogIntakeScreen(patientID: patientID),
+                      ),
+                    );
+                  },
+                  1, // Hover effect on second card
+                  screenWidth, // Pass screen width for responsiveness
+                ),
+                SizedBox(height: screenHeight * 0.02), // Space between cards
+                // View Medication History Card
+                _buildDashboardCard(
+                  context,
+                  'View Medication History',
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => ViewMedicationHistoryScreen(
+                              patientID: patientID,
+                            ),
+                      ),
+                    );
+                  },
+                  1, // Hover effect on second card
+                  screenWidth, // Pass screen width for responsiveness
+                ),
+                SizedBox(height: screenHeight * 0.02), // Space between cards
+                // View Refill Dates Card
+                _buildDashboardCard(
+                  context,
+                  'View Refill Dates',
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) =>
+                                RefillDatesScreen(patientID: patientID),
+                      ),
+                    );
+                  },
+                  2, // Hover effect on third card
+                  screenWidth, // Pass screen width for responsiveness
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -178,6 +209,7 @@ class DashboardState extends State<Dashboard> {
     double screenWidth, // Pass screenWidth for responsiveness
   ) {
     bool isHovered = _hoveredIndex == index;
+
     // For mobile devices, no hover effect will work, only onTap.
     if (screenWidth <= 600) {
       return GestureDetector(
@@ -253,7 +285,7 @@ class DashboardState extends State<Dashboard> {
                 title,
                 style: TextStyle(
                   fontSize: 16, // Smaller font size for modern look
-                  fontWeight: FontWeight.normal, // Unbold the card title
+                  fontWeight: FontWeight.normal,
                   color:
                       isHovered
                           ? Colors.white

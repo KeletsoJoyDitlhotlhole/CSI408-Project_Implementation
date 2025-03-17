@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'signup_screen.dart'; // Ensure you have the correct path to your signup screen
 import 'dashboard_screen.dart'; // Ensure you have the correct path to your dashboard screen
@@ -177,6 +178,31 @@ class LoginPage extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: screenWidth * 0.045,
                                 fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // Forgot Password Link
+                        Padding(
+                          padding: EdgeInsets.only(
+                            top: screenHeight * 0.02,
+                          ), // Space between button and forgot password
+                          child: GestureDetector(
+                            onTap: () {
+                              // Add navigation to Forgot Password screen or dialog
+                              if (kDebugMode) {
+                                print("Forgot Password tapped!");
+                              }
+                              // For now, just show a dialog or navigate to the reset password screen
+                            },
+                            child: Text(
+                              'Forgot Password?',
+                              style: TextStyle(
+                                color: Color(0xFF800000), // Maroon for the text
+                                fontSize: screenWidth * 0.04,
+                                fontWeight:
+                                    FontWeight.w400, // Lighter font weight
                               ),
                             ),
                           ),

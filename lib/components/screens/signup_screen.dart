@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For modifying system UI overlays
-import 'package:medication_compliance_tool/components/screens/signedup_screen.dart'; // Add the path to your success screen
+import 'package:http/http.dart' as http;
+import 'dart:convert'; // For encoding JSON
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -18,20 +20,44 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _genderController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
-      TextEditingController(); // Confirm password
-  final TextEditingController _idController =
-      TextEditingController(); // Added ID controller
+      TextEditingController();
+  final TextEditingController _idController = TextEditingController();
+
+  // Function to send data to the backend
+  Future<void> submitPatientData(Map<String, String> userData) async {
+    final response = await http.post(
+      Uri.parse('http://your-backend-api-url/save-patient'), // Backend API URL
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(userData), // Encode the data as JSON
+    );
+
+    if (response.statusCode == 200) {
+      if (kDebugMode) {
+        print('Patient data saved successfully');
+      }
+    } else {
+      if (kDebugMode) {
+        print('Failed to save patient data');
+      }
+    }
+  }
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      // TODO: Integrate Keycloak authentication for passwords and save other patient data to SQLite
+      final userData = {
+        'Patient_Name': _firstNameController.text,
+        'Patient_Surname': _surnameController.text,
+        'Patient_DoB': _dobController.text,
+        'Patient_Gender': _genderController.text,
+        'Patient_PhoneNumber': _phoneNumberController.text,
+      };
 
-      // Navigate to success screen after sign-up
+      submitPatientData(userData); // Send data to the backend
+
+      // Navigate to the success screen
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (context) => SignedUp(),
-        ), // Redirect to success screen
+        MaterialPageRoute(builder: (context) => SignedUp()),
       );
     }
   }
@@ -49,11 +75,11 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   void initState() {
     super.initState();
-    // Set status bar color to #C3DFE0 (light greenish)
+    // Set status bar color
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
-        statusBarColor: Color(0xFFC3DFE0), // Light greenish color
-        statusBarIconBrightness: Brightness.dark, // To make icons visible
+        statusBarColor: Color(0xFFC3DFE0),
+        statusBarIconBrightness: Brightness.dark,
       ),
     );
   }
@@ -67,7 +93,7 @@ class _SignUpPageState extends State<SignUpPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('Sign Up'),
-        backgroundColor: Color(0xFFC3DFE0), // AppBar color
+        backgroundColor: Color(0xFFC3DFE0),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -100,7 +126,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     key: _formKey,
                     child: Column(
                       children: [
-                        // Added ID field first
+                        // ID field
                         TextFormField(
                           controller: _idController,
                           decoration: InputDecoration(
