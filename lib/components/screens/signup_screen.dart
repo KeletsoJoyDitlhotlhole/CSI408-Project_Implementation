@@ -1,9 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // For modifying system UI overlays
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert'; // For encoding data into JSON
 import 'package:medication_compliance_tool/components/screens/signedup_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -24,28 +25,72 @@ class _SignUpPageState extends State<SignUpPage> {
       TextEditingController();
   final TextEditingController _idController = TextEditingController();
 
-  // Function to send user data to the backend
-  Future<void> submitPatientData(Map<String, String> userData) async {
+  // Fetch environment variables
+  String get keycloakUrl => dotenv.get('KEYCLOAK_URL');
+  String get keycloakRealm => dotenv.get('KEYCLOAK_REALM');
+  String get keycloakClientId => dotenv.get('KEYCLOAK_CLIENT_ID');
+  String get keycloakAdminUsername => dotenv.get('KEYCLOAK_ADMIN_USERNAME');
+  String get keycloakAdminPassword => dotenv.get('KEYCLOAK_ADMIN_PASSWORD');
+
+  Future<String> getAdminAccessToken() async {
     final response = await http.post(
       Uri.parse(
-        'http://10.220.6.32:3000/save-patient',
-      ), // Update with your backend API URL
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(userData), // Encode the data as JSON
+        '$keycloakUrl/realms/$keycloakRealm/protocol/openid-connect/token',
+      ),
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: {
+        'client_id':
+            'admin-cli', // The admin-cli client is used for admin purposes
+        'username': keycloakAdminUsername,
+        'password': keycloakAdminPassword,
+        'grant_type': 'password',
+      },
     );
 
     if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['access_token'];
+    } else {
+      throw Exception('Failed to get admin access token');
+    }
+  }
+
+  Future<void> createUser(Map<String, String> userData) async {
+    final adminAccessToken = await getAdminAccessToken();
+
+    final response = await http.post(
+      Uri.parse('$keycloakUrl/admin/realms/$keycloakRealm/users'),
+      headers: {
+        'Authorization': 'Bearer $adminAccessToken',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'username': userData['Patient_ID'],
+        'enabled': true,
+        'firstName': userData['Patient_Name'],
+        'lastName': userData['Patient_Surname'],
+        'email': '',
+        'credentials': [
+          {
+            'type': 'password',
+            'value': userData['password'],
+            'temporary': false,
+          },
+        ],
+      }),
+    );
+
+    if (response.statusCode == 201) {
       if (kDebugMode) {
-        print('Patient data saved successfully');
+        print('User created successfully');
       }
     } else {
       if (kDebugMode) {
-        print('Failed to save patient data');
+        print('Failed to create user: ${response.body}');
       }
     }
   }
 
-  // Form submission handler
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       final userData = {
@@ -55,15 +100,22 @@ class _SignUpPageState extends State<SignUpPage> {
         'Patient_DoB': _dobController.text,
         'Patient_Gender': _genderController.text,
         'Patient_PhoneNumber': _phoneNumberController.text,
+        'password': _passwordController.text,
       };
 
-      submitPatientData(userData); // Send data to the backend
-
-      // Navigate to the success screen after saving data
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => SignedUp()),
-      );
+      createUser(userData)
+          .then((_) {
+            Navigator.pushReplacement(
+              // ignore: use_build_context_synchronously
+              context,
+              MaterialPageRoute(builder: (context) => SignedUp()),
+            );
+          })
+          .catchError((error) {
+            if (kDebugMode) {
+              print('Error: $error');
+            }
+          });
     }
   }
 
@@ -80,13 +132,13 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   void initState() {
     super.initState();
-    // Set status bar color
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: Color(0xFFC3DFE0),
         statusBarIconBrightness: Brightness.dark,
       ),
     );
+    dotenv.load(); // Load environment variables
   }
 
   @override
@@ -131,7 +183,6 @@ class _SignUpPageState extends State<SignUpPage> {
                     key: _formKey,
                     child: Column(
                       children: [
-                        // ID field
                         TextFormField(
                           controller: _idController,
                           decoration: InputDecoration(
@@ -206,7 +257,6 @@ class _SignUpPageState extends State<SignUpPage> {
                                   value!.length < 6 ? 'Min 6 chars' : null,
                         ),
                         SizedBox(height: 10),
-                        // Confirm Password Field
                         TextFormField(
                           controller: _confirmPasswordController,
                           decoration: InputDecoration(

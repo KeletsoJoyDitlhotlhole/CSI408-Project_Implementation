@@ -46,4 +46,6 @@ flutter:
     - assets/images/
     - assets/fonts/
     - assets/medication_compliance_tool.db
+    - config/.env
+
     
