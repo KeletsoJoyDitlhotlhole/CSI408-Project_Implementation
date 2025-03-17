@@ -3,5 +3,26 @@
     "body-parser": "^1.20.3",
     "express": "^4.21.2",
     "mysql2": "^3.13.0"
-  }
+  },
+  "name": "medication_compliance_tool",
+  "version": "1.0.0",
+  "description": "A new Flutter project.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KeletsoJoyDitlhotlhole/CSI408-Project_Implementation.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KeletsoJoyDitlhotlhole/CSI408-Project_Implementation/issues"
+  },
+  "homepage": "https://github.com/KeletsoJoyDitlhotlhole/CSI408-Project_Implementation#readme"
 }

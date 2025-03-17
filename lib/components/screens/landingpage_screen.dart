@@ -20,7 +20,7 @@ class LandingPageScreenState extends State<LandingPageScreen> {
         // Navigate to the LoginScreen after 5 seconds
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const LoginPage()),
+          MaterialPageRoute(builder: (context) => LoginPage()),
         );
       }
     });

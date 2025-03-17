@@ -2,7 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For modifying system UI overlays
 import 'package:http/http.dart' as http;
-import 'dart:convert'; // For encoding JSON
+import 'dart:convert'; // For encoding data into JSON
+import 'package:medication_compliance_tool/components/screens/signedup_screen.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -23,10 +24,12 @@ class _SignUpPageState extends State<SignUpPage> {
       TextEditingController();
   final TextEditingController _idController = TextEditingController();
 
-  // Function to send data to the backend
+  // Function to send user data to the backend
   Future<void> submitPatientData(Map<String, String> userData) async {
     final response = await http.post(
-      Uri.parse('http://your-backend-api-url/save-patient'), // Backend API URL
+      Uri.parse(
+        'http://10.220.6.32:3000/save-patient',
+      ), // Update with your backend API URL
       headers: {'Content-Type': 'application/json'},
       body: json.encode(userData), // Encode the data as JSON
     );
@@ -42,9 +45,11 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
+  // Form submission handler
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       final userData = {
+        'Patient_ID': _idController.text,
         'Patient_Name': _firstNameController.text,
         'Patient_Surname': _surnameController.text,
         'Patient_DoB': _dobController.text,
@@ -54,7 +59,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
       submitPatientData(userData); // Send data to the backend
 
-      // Navigate to the success screen
+      // Navigate to the success screen after saving data
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => SignedUp()),

@@ -1,260 +1,92 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'signup_screen.dart'; // Ensure you have the correct path to your signup screen
-import 'dashboard_screen.dart'; // Ensure you have the correct path to your dashboard screen
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'signup_screen.dart';
+import 'dashboard_screen.dart';
+import 'package:medication_compliance_tool/services/token_service.dart';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TokenService _tokenService = TokenService();
+
+  LoginPage({super.key});
+
+  // Keycloak endpoint
+  Future<void> _login(BuildContext context) async {
+    final response = await http.post(
+      Uri.parse(
+        'http://localhost:8080/realms/csi408-medication-compliance-tool/protocol/openid-connect/token',
+      ),
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: {
+        'grant_type': 'password',
+        'client_id': 'medication-tool-client',
+        'username': _usernameController.text,
+        'password': _passwordController.text,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final accessToken = data['access_token'];
+
+      // Store token securely
+      await _tokenService.saveToken(accessToken);
+
+      // Navigate to Dashboard
+      // ignore: use_build_context_synchronously
+      Navigator.pushReplacement(
+        // ignore: use_build_context_synchronously
+        context,
+        MaterialPageRoute(builder: (context) => Dashboard()),
+      );
+    } else {
+      // ignore: use_build_context_synchronously
+      _showError(context);
+    }
+  }
+
+  void _showError(BuildContext context) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Invalid Credentials!')));
+  }
 
   @override
   Widget build(BuildContext context) {
-    double statusBarHeight = MediaQuery.of(context).padding.top;
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-
     return Scaffold(
-      backgroundColor: Color(0xFFC3DFE0), // Set background color (C3DFE0)
+      appBar: AppBar(title: const Text('Login')),
       body: Padding(
-        padding: EdgeInsets.only(top: statusBarHeight),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.center, // Center the entire content
-            children: [
-              SizedBox(
-                height:
-                    screenHeight * 0.1, // Space at the top (where the logo was)
-              ),
-
-              // Container for Login Fields with white background
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white, // White background behind fields
-                    borderRadius: BorderRadius.circular(15), // Rounded corners
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey, // Light shadow for a clean look
-                        spreadRadius: 3,
-                        blurRadius: 7,
-                        offset: Offset(0, 3), // changes position of shadow
-                      ),
-                    ],
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              controller: _usernameController,
+              decoration: const InputDecoration(labelText: 'Username'),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _passwordController,
+              decoration: const InputDecoration(labelText: 'Password'),
+              obscureText: true,
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: () => _login(context),
+              child: const Text('Login'),
+            ),
+            const SizedBox(height: 20),
+            TextButton(
+              onPressed:
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SignUpPage()),
                   ),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      vertical:
-                          screenHeight *
-                          0.05, // Add padding to the top and bottom
-                      horizontal: screenWidth * 0.05,
-                    ),
-                    child: Column(
-                      children: [
-                        // Logo at the top of the white container
-                        Container(
-                          padding: EdgeInsets.only(
-                            bottom: screenHeight * 0.04,
-                          ), // Space between logo and login fields
-                          child: Image.asset(
-                            "assets/images/logo_with_name_white.png", // Path to the logo
-                            width: screenWidth * 0.6, // Adjust the logo size
-                            height:
-                                screenHeight * 0.2, // Adjust the logo height
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-
-                        // Login Heading
-                        Text(
-                          'Login',
-                          style: TextStyle(
-                            fontSize:
-                                screenWidth *
-                                0.08, // Larger font size for login text
-                            fontWeight: FontWeight.bold,
-                            color: Color(
-                              0xFF3A3A3A,
-                            ), // Dark gray for better readability
-                          ),
-                        ),
-                        SizedBox(
-                          height: screenHeight * 0.03,
-                        ), // Space between heading and fields
-                        // Username Field
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: screenHeight * 0.02,
-                          ),
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              labelText: 'Username',
-                              labelStyle: TextStyle(
-                                color: Color(
-                                  0xFF5F6B6C,
-                                ), // Muted dark green color for labels
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  color: Color(
-                                    0xFF5F6B6C,
-                                  ), // Muted border color
-                                  width: 1.5,
-                                ),
-                              ),
-                              prefixIcon: Icon(
-                                Icons.person,
-                                color: Color(
-                                  0xFF5F6B6C,
-                                ), // Matching color for icon
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Password Field
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: screenHeight * 0.02,
-                          ),
-                          child: TextFormField(
-                            obscureText: true,
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              labelStyle: TextStyle(
-                                color: Color(
-                                  0xFF5F6B6C,
-                                ), // Muted dark green color for labels
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  color: Color(
-                                    0xFF5F6B6C,
-                                  ), // Muted border color
-                                  width: 1.5,
-                                ),
-                              ),
-                              prefixIcon: Icon(
-                                Icons.lock,
-                                color: Color(
-                                  0xFF5F6B6C,
-                                ), // Matching color for icon
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Login Button
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: screenHeight * 0.03,
-                          ),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) =>
-                                          Dashboard(), // Navigate to DashboardScreen
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: Size(double.infinity, 50),
-                              backgroundColor: Color(
-                                0xFF6FBF73,
-                              ), // Soft greenish-blue color for button
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  10,
-                                ), // Rounded corners for button
-                              ),
-                            ),
-                            child: Text(
-                              'Login',
-                              style: TextStyle(
-                                fontSize: screenWidth * 0.045,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Forgot Password Link
-                        Padding(
-                          padding: EdgeInsets.only(
-                            top: screenHeight * 0.02,
-                          ), // Space between button and forgot password
-                          child: GestureDetector(
-                            onTap: () {
-                              // Add navigation to Forgot Password screen or dialog
-                              if (kDebugMode) {
-                                print("Forgot Password tapped!");
-                              }
-                              // For now, just show a dialog or navigate to the reset password screen
-                            },
-                            child: Text(
-                              'Forgot Password?',
-                              style: TextStyle(
-                                color: Color(0xFF800000), // Maroon for the text
-                                fontSize: screenWidth * 0.04,
-                                fontWeight:
-                                    FontWeight.w400, // Lighter font weight
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Row with "New here?" and "Create Account"
-                        Padding(
-                          padding: EdgeInsets.only(bottom: screenHeight * 0.05),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'New here? ',
-                                style: TextStyle(
-                                  fontSize: screenWidth * 0.04,
-                                  color: Color(
-                                    0xFF5F6B6C,
-                                  ), // Muted text color for better contrast
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => SignUpPage(),
-                                    ),
-                                  );
-                                },
-                                child: Text(
-                                  'Create Account',
-                                  style: TextStyle(
-                                    color: Color(
-                                      0xFF800000,
-                                    ), // Maroon for "Create Account"
-                                    fontSize: screenWidth * 0.04,
-                                    fontWeight:
-                                        FontWeight
-                                            .w300, // Lighter font weight for "Create Account"
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+              child: const Text('Create an Account'),
+            ),
+          ],
         ),
       ),
     );
