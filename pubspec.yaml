@@ -25,7 +25,8 @@ dependencies:
   leak_tracker: 10.0.8
   material_color_utilities: 0.11.1
   vm_service: ^14.3.1 
-  flutter_appauth: ^9.0.0 
+  flutter_appauth: ^9.0.0
+  flutter_secure_storage: ^9.2.4 
 
   # Database handling
   sqflite_common_ffi: ^2.3.4  # For desktop (Windows, Mac, Linux)

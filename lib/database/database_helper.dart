@@ -15,9 +15,7 @@ class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
   static Database? _database;
 
-  // Logger setup
-  final Logger _logger = Logger('DatabaseHelper'); // Set up logger
-
+  final Logger _logger = Logger('DatabaseHelper');
   DatabaseHelper._privateConstructor();
 
   // Open the database
@@ -51,36 +49,12 @@ class DatabaseHelper {
       }
     } catch (e) {
       _logger.severe("Database initialization error: $e"); // Log error
-      rethrow; // Re-throw the error after logging it
+      rethrow;
     }
   }
 
   // Create necessary tables
   Future<void> _createTables(Database db) async {
-    await db.execute(''' 
-      CREATE TABLE IF NOT EXISTS MedicationSchedule (
-        Schedule_ID TEXT PRIMARY KEY,
-        Patient_ID TEXT,
-        IsTaken TEXT
-      )
-    ''');
-
-    await db.execute(''' 
-      CREATE TABLE IF NOT EXISTS Prescription (
-        Prescription_ID TEXT PRIMARY KEY,
-        Patient_ID TEXT,
-        Med_ID TEXT,
-        Refill_Date TEXT
-      )
-    ''');
-
-    await db.execute(''' 
-      CREATE TABLE IF NOT EXISTS Medication (
-        Med_ID TEXT PRIMARY KEY,
-        Med_Name TEXT
-      )
-    ''');
-
     _logger.info('Database tables created successfully');
   }
 
@@ -96,7 +70,7 @@ class DatabaseHelper {
     );
   }
 
-  // Update medication log (e.g., when the patient logs their intake)
+  // Update medication log
   Future<int> updateMedicationLog(String scheduleID, bool isLogged) async {
     final db = await database;
     return await db.update(
@@ -125,8 +99,7 @@ class DatabaseHelper {
     final db = await database;
     final List<Map<String, dynamic>> result = await db.query(
       'Prescription',
-      where: 'Patient_ID = ?',
-      whereArgs: [patientID],
+      where: 'Patient_ID = Pat001',
     );
 
     return result.map((row) => ViewPrescriptions.fromMap(row)).toList();
