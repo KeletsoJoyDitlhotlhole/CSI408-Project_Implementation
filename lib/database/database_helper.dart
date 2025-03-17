@@ -43,9 +43,10 @@ class DatabaseHelper {
         return await openDatabase(
           path,
           onCreate: (db, version) async {
+            _logger.info("Creating tables...");
             await _createTables(db);
           },
-          version: 2, // Ensure to update version number if necessary
+          version: 3, // Make sure to update the version number
         );
       }
     } catch (e) {
@@ -76,6 +77,13 @@ class DatabaseHelper {
       final File file = File(path);
       await file.writeAsBytes(bytes);
       _logger.info('Database copied from assets to local storage');
+
+      // Check if the file is now available
+      if (await File(path).exists()) {
+        _logger.info('Database file exists at $path');
+      } else {
+        _logger.warning('Database file does not exist at $path');
+      }
     } catch (e) {
       _logger.severe("Error copying database: $e");
       rethrow;
@@ -125,6 +133,19 @@ class DatabaseHelper {
     ''');
 
     _logger.info('Database tables created successfully');
+
+    // Log the tables in the database after creation
+    await _logDatabaseTables(db);
+  }
+
+  // Log the tables in the database to verify if all required tables exist
+  Future<void> _logDatabaseTables(Database db) async {
+    List<Map<String, dynamic>> result = await db.rawQuery(
+      'SELECT name FROM sqlite_master WHERE type="table";',
+    );
+    _logger.info(
+      'Tables in database: ${result.map((e) => e['name']).join(', ')}',
+    );
   }
 
   // Fetch medication schedules for a patient
