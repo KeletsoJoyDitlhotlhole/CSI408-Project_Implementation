@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'signup_screen.dart';
 import 'dashboard_screen.dart';
 import 'package:medication_compliance_tool/services/token_service.dart';
+import 'resetpassword_screen.dart'; // Import reset password screen
 
 class LoginPage extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
@@ -175,6 +176,30 @@ class LoginPage extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: screenWidth * 0.045,
                                 fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        // Add the Reset Password Text Here
+                        Padding(
+                          padding: EdgeInsets.only(bottom: screenHeight * 0.02),
+                          child: GestureDetector(
+                            onTap: () {
+                              // Navigate to reset password screen
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ResetPasswordPage(),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              'Forgot Password?',
+                              style: TextStyle(
+                                color: Color(0xFF800000),
+                                fontSize: screenWidth * 0.04,
+                                fontWeight: FontWeight.w300,
+                                decoration: TextDecoration.underline,
                               ),
                             ),
                           ),
