@@ -17,7 +17,7 @@ class LoginPage extends StatelessWidget {
   Future<void> _login(BuildContext context) async {
     final response = await http.post(
       Uri.parse(
-        'http://10.220.6.32:8080/realms/csi408-medication-compliance-tool/protocol/openid-connect/token',
+        'http://10.220.15.95:8080/realms/csi408-medication-compliance-tool/protocol/openid-connect/token',
       ),
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: {
