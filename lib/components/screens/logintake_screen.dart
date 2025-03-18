@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:medication_compliance_tool/database/database_helper.dart';
-import 'package:medication_compliance_tool/components/models/medicationschedule.dart';
-import 'dashboard_screen.dart'; // Import the Dashboard screen for navigation
+
+class MedicationSchedule {
+  final String medicationName;
+  final String scheduleTime;
+  final String scheduleID;
+  String isTaken; // Make isTaken mutable to update the value dynamically
+
+  MedicationSchedule({
+    required this.medicationName,
+    required this.scheduleTime,
+    required this.scheduleID,
+    required this.isTaken,
+  });
+}
 
 class LogIntakeScreen extends StatefulWidget {
   final String
@@ -14,30 +25,38 @@ class LogIntakeScreen extends StatefulWidget {
 }
 
 class LogIntakeScreenState extends State<LogIntakeScreen> {
-  late Future<List<MedicationSchedule>>
-  medicationSchedules; // Store the fetched schedules
+  // Hardcoded list of medication schedules for UI preview
+  final List<MedicationSchedule> medicationSchedules = [
+    MedicationSchedule(
+      medicationName: 'Aspirin',
+      scheduleTime: '8:00 AM',
+      scheduleID: '1',
+      isTaken: 'No',
+    ),
+    MedicationSchedule(
+      medicationName: 'Vitamin D',
+      scheduleTime: '12:00 PM',
+      scheduleID: '2',
+      isTaken: 'Yes',
+    ),
+    MedicationSchedule(
+      medicationName: 'Ibuprofen',
+      scheduleTime: '6:00 PM',
+      scheduleID: '3',
+      isTaken: 'No',
+    ),
+  ];
 
-  @override
-  void initState() {
-    super.initState();
-    medicationSchedules = fetchMedicationSchedules();
-  }
-
-  // Fetch medication schedules from the database
-  Future<List<MedicationSchedule>> fetchMedicationSchedules() async {
-    var schedules = await DatabaseHelper.instance.getMedicationSchedules(
-      widget.patientID,
-    );
-    return schedules
-        .map((schedule) => MedicationSchedule.fromMap(schedule))
-        .toList();
-  }
-
-  // Method to handle checkbox toggle and update the database
-  Future<void> logMedicationIntake(String scheduleID, bool isLogged) async {
-    // Instead of 'Yes'/'No', directly store the bool value in the database
-    await DatabaseHelper.instance.updateMedicationLog(scheduleID, isLogged);
-    setState(() {}); // Rebuild the UI to reflect the changes
+  // Method to handle checkbox toggle and update the UI (hardcoded version)
+  void logMedicationIntake(String scheduleID, bool isLogged) {
+    setState(() {
+      final index = medicationSchedules.indexWhere(
+        (schedule) => schedule.scheduleID == scheduleID,
+      );
+      if (index != -1) {
+        medicationSchedules[index].isTaken = isLogged ? 'Yes' : 'No';
+      }
+    });
   }
 
   @override
@@ -45,6 +64,16 @@ class LogIntakeScreenState extends State<LogIntakeScreen> {
     double statusBarHeight = MediaQuery.of(context).padding.top;
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+
+    // Separate the medication schedules into taken and not taken lists
+    List<MedicationSchedule> takenSchedules =
+        medicationSchedules
+            .where((schedule) => schedule.isTaken == 'Yes')
+            .toList();
+    List<MedicationSchedule> notTakenSchedules =
+        medicationSchedules
+            .where((schedule) => schedule.isTaken == 'No')
+            .toList();
 
     return Scaffold(
       backgroundColor: Color(0xFFC3DFE0), // Set background color (C3DFE0)
@@ -115,77 +144,128 @@ class LogIntakeScreenState extends State<LogIntakeScreen> {
                         SizedBox(
                           height: screenHeight * 0.03,
                         ), // Space between heading and the list
-                        // Medication Log List View
-                        FutureBuilder<List<MedicationSchedule>>(
-                          future: medicationSchedules, // Simulate fetching data
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
-                            } else if (snapshot.hasError) {
-                              return Center(
-                                child: Text('Error: ${snapshot.error}'),
-                              );
-                            } else if (!snapshot.hasData ||
-                                snapshot.data!.isEmpty) {
-                              return Center(
-                                child: Text('No medication schedule found.'),
-                              );
-                            } else {
-                              var schedules = snapshot.data!;
-                              return ListView.builder(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: 10.0,
-                                  horizontal: 15.0,
-                                ), // Add padding for better layout
-                                itemCount: schedules.length,
-                                shrinkWrap:
-                                    true, // Make the ListView fit inside the scrollable area
-                                physics:
-                                    NeverScrollableScrollPhysics(), // Disable scrolling in ListView
-                                itemBuilder: (context, index) {
-                                  var schedule = schedules[index];
-                                  return Card(
-                                    // Wrap ListTile in a Card for better appearance
-                                    margin: EdgeInsets.symmetric(vertical: 8.0),
-                                    elevation:
-                                        2.0, // Add some shadow for elevation
-                                    child: ListTile(
-                                      contentPadding: EdgeInsets.symmetric(
-                                        horizontal: screenWidth * 0.05,
-                                        vertical: screenHeight * 0.02,
-                                      ),
-                                      title: Text(
-                                        'Medication: ${schedule.medicationName}',
-                                        style: TextStyle(
-                                          fontSize: screenWidth * 0.05,
-                                          fontWeight: FontWeight.w500,
-                                          color: Color(0xFF3A3A3A),
-                                        ),
-                                      ),
-                                      subtitle: Text(
-                                        'Time: ${schedule.scheduleTime}',
-                                        style: TextStyle(
-                                          fontSize: screenWidth * 0.04,
-                                          color: Color(0xFF5F6B6C),
-                                        ),
-                                      ),
-                                      trailing: Checkbox(
-                                        value:
-                                            schedule.isTaken ==
-                                            'Yes', // Assuming "Yes" means taken
-                                        onChanged: (bool? value) {
-                                          logMedicationIntake(
-                                            schedule.scheduleID,
-                                            value ?? false,
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            }
+                        // Section for Not Taken Medications
+                        Text(
+                          'Not Taken',
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.06,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+
+                        // List of Not Taken Medications
+                        ListView.builder(
+                          padding: EdgeInsets.symmetric(
+                            vertical: 10.0,
+                            horizontal: 15.0,
+                          ), // Add padding for better layout
+                          itemCount: notTakenSchedules.length,
+                          shrinkWrap:
+                              true, // Make the ListView fit inside the scrollable area
+                          physics:
+                              NeverScrollableScrollPhysics(), // Disable scrolling in ListView
+                          itemBuilder: (context, index) {
+                            var schedule = notTakenSchedules[index];
+                            return Card(
+                              margin: EdgeInsets.symmetric(vertical: 8.0),
+                              elevation: 2.0, // Add some shadow for elevation
+                              child: ListTile(
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: screenWidth * 0.05,
+                                  vertical: screenHeight * 0.02,
+                                ),
+                                title: Text(
+                                  'Medication: ${schedule.medicationName}',
+                                  style: TextStyle(
+                                    fontSize: screenWidth * 0.05,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF3A3A3A),
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Time: ${schedule.scheduleTime}',
+                                  style: TextStyle(
+                                    fontSize: screenWidth * 0.04,
+                                    color: Color(0xFF5F6B6C),
+                                  ),
+                                ),
+                                trailing: Checkbox(
+                                  value:
+                                      schedule.isTaken ==
+                                      'Yes', // Assuming "Yes" means taken
+                                  onChanged: (bool? value) {
+                                    logMedicationIntake(
+                                      schedule.scheduleID,
+                                      value ?? false,
+                                    );
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+
+                        // Section for Taken Medications
+                        SizedBox(height: 20),
+                        Text(
+                          'Taken',
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.06,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+
+                        // List of Taken Medications
+                        ListView.builder(
+                          padding: EdgeInsets.symmetric(
+                            vertical: 10.0,
+                            horizontal: 15.0,
+                          ), // Add padding for better layout
+                          itemCount: takenSchedules.length,
+                          shrinkWrap:
+                              true, // Make the ListView fit inside the scrollable area
+                          physics:
+                              NeverScrollableScrollPhysics(), // Disable scrolling in ListView
+                          itemBuilder: (context, index) {
+                            var schedule = takenSchedules[index];
+                            return Card(
+                              margin: EdgeInsets.symmetric(vertical: 8.0),
+                              elevation: 2.0, // Add some shadow for elevation
+                              child: ListTile(
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: screenWidth * 0.05,
+                                  vertical: screenHeight * 0.02,
+                                ),
+                                title: Text(
+                                  'Medication: ${schedule.medicationName}',
+                                  style: TextStyle(
+                                    fontSize: screenWidth * 0.05,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF3A3A3A),
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Time: ${schedule.scheduleTime}',
+                                  style: TextStyle(
+                                    fontSize: screenWidth * 0.04,
+                                    color: Color(0xFF5F6B6C),
+                                  ),
+                                ),
+                                trailing: Checkbox(
+                                  value:
+                                      schedule.isTaken ==
+                                      'Yes', // Assuming "Yes" means taken
+                                  onChanged: (bool? value) {
+                                    logMedicationIntake(
+                                      schedule.scheduleID,
+                                      value ?? false,
+                                    );
+                                  },
+                                ),
+                              ),
+                            );
                           },
                         ),
                       ],
@@ -199,12 +279,7 @@ class LogIntakeScreenState extends State<LogIntakeScreen> {
                 padding: EdgeInsets.all(screenWidth * 0.05),
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Dashboard(),
-                      ), // Navigate back to Dashboard
-                    );
+                    // You can replace this with a mock dashboard screen for now.
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(double.infinity, 50),

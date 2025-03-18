@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:medication_compliance_tool/components/models/medicationlog.dart';
-import 'package:medication_compliance_tool/database/database_helper.dart';
 import 'dashboard_screen.dart'; // Import the Dashboard screen for navigation
 
 class ViewMedicationHistoryScreen extends StatefulWidget {
@@ -16,25 +14,22 @@ class ViewMedicationHistoryScreen extends StatefulWidget {
 
 class ViewMedicationHistoryScreenState
     extends State<ViewMedicationHistoryScreen> {
-  late Future<List<MedicationLog>>
-  medicationHistory; // Store the fetched medication history
-
-  @override
-  void initState() {
-    super.initState();
-    medicationHistory =
-        fetchMedicationHistory(); // Fetch medication history when the screen is initialized
-  }
-
-  // Fetch medication history from the database
-  Future<List<MedicationLog>> fetchMedicationHistory() async {
-    var history = await DatabaseHelper.instance.getMedicationHistory(
-      widget.patientID,
-    );
-    return history
-        .map((historyItem) => MedicationLog.fromMap(historyItem))
-        .toList();
-  }
+  // Expanded hardcoded medication history data (mock data)
+  List<Map<String, String>> medicationHistory = [
+    {'medicationName': 'Aspirin', 'logDate': '2025-03-15'},
+    {'medicationName': 'Metformin', 'logDate': '2025-03-16'},
+    {'medicationName': 'Lisinopril', 'logDate': '2025-03-17'},
+    {'medicationName': 'Paracetamol', 'logDate': '2025-03-18'},
+    {'medicationName': 'Amoxicillin', 'logDate': '2025-03-19'},
+    {'medicationName': 'Ibuprofen', 'logDate': '2025-03-20'},
+    {'medicationName': 'Vitamin D', 'logDate': '2025-03-21'},
+    {'medicationName': 'Cholesterol Tablets', 'logDate': '2025-03-22'},
+    {'medicationName': 'Amlodipine', 'logDate': '2025-03-23'},
+    {'medicationName': 'Warfarin', 'logDate': '2025-03-24'},
+    {'medicationName': 'Insulin', 'logDate': '2025-03-25'},
+    {'medicationName': 'Levothyroxine', 'logDate': '2025-03-26'},
+    {'medicationName': 'Prednisolone', 'logDate': '2025-03-27'},
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -112,72 +107,43 @@ class ViewMedicationHistoryScreenState
                           height: screenHeight * 0.03,
                         ), // Space between heading and the list
                         // Medication History Log List View
-                        FutureBuilder<List<MedicationLog>>(
-                          future:
-                              medicationHistory, // Fetch data asynchronously
-                          builder: (context, snapshot) {
-                            // Loading state
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
-                            }
-                            // Error state
-                            else if (snapshot.hasError) {
-                              return Center(
-                                child: Text('Error: ${snapshot.error}'),
-                              );
-                            }
-                            // No data available
-                            else if (!snapshot.hasData ||
-                                snapshot.data!.isEmpty) {
-                              return Center(
-                                child: Text('No medication history found.'),
-                              );
-                            }
-                            // Data available
-                            else {
-                              var history = snapshot.data!;
-                              return ListView.builder(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: 10.0,
-                                  horizontal: 15.0,
+                        ListView.builder(
+                          padding: EdgeInsets.symmetric(
+                            vertical: 10.0,
+                            horizontal: 15.0,
+                          ),
+                          itemCount: medicationHistory.length,
+                          shrinkWrap:
+                              true, // Make the ListView fit inside the scrollable area
+                          physics:
+                              NeverScrollableScrollPhysics(), // Disable scrolling in ListView
+                          itemBuilder: (context, index) {
+                            var medHistory = medicationHistory[index];
+                            return Card(
+                              margin: EdgeInsets.symmetric(vertical: 8.0),
+                              elevation: 2.0, // Add some shadow for elevation
+                              child: ListTile(
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: screenWidth * 0.05,
+                                  vertical: screenHeight * 0.02,
                                 ),
-                                itemCount: history.length,
-                                shrinkWrap:
-                                    true, // Make the ListView fit inside the scrollable area
-                                physics:
-                                    NeverScrollableScrollPhysics(), // Disable scrolling in ListView
-                                itemBuilder: (context, index) {
-                                  var medHistory = history[index];
-                                  return Card(
-                                    margin: EdgeInsets.symmetric(vertical: 8.0),
-                                    elevation:
-                                        2.0, // Add some shadow for elevation
-                                    child: ListTile(
-                                      contentPadding: EdgeInsets.symmetric(
-                                        horizontal: screenWidth * 0.05,
-                                        vertical: screenHeight * 0.02,
-                                      ),
-                                      title: Text(
-                                        'Medication: ${medHistory.medicationName}',
-                                        style: TextStyle(
-                                          fontSize: screenWidth * 0.05,
-                                          fontWeight: FontWeight.w500,
-                                          color: Color(0xFF3A3A3A),
-                                        ),
-                                      ),
-                                      subtitle: Text(
-                                        'Taken on: ${medHistory.logDate}',
-                                        style: TextStyle(
-                                          fontSize: screenWidth * 0.04,
-                                          color: Color(0xFF5F6B6C),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            }
+                                title: Text(
+                                  'Medication: ${medHistory['medicationName']}',
+                                  style: TextStyle(
+                                    fontSize: screenWidth * 0.05,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF3A3A3A),
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Taken on: ${medHistory['logDate']}',
+                                  style: TextStyle(
+                                    fontSize: screenWidth * 0.04,
+                                    color: Color(0xFF5F6B6C),
+                                  ),
+                                ),
+                              ),
+                            );
                           },
                         ),
                       ],
